@@ -1,8 +1,9 @@
 #include <bitset>
 #include <fstream>
 #include <iostream>
-#include <string>
 #include <limits>
+#include <string>
+#include <vector>
 
 using namespace std;
 
@@ -123,15 +124,21 @@ public:
     {
         int positives = 0;
         int negatives = 0;
+        vector<string> maliciousUrls;  // Vector to hold malicious URLs
         ifstream file(filename);
         if (file.is_open())
         {
             string line;
             while (getline(file, line))
             {
-                cout << "Checking " << line << " : " << contains(line) << endl;
-                positives += contains(line);
-                negatives += !contains(line);
+                bool result = contains(line);
+                cout << "Checking " << line << " : " << (result ? "possibly malicious" : "not malicious") << endl;
+                positives += result;
+                negatives += !result;
+                if (result)
+                {
+                    maliciousUrls.push_back(line);  // Store malicious URLs
+                }
             }
             file.close();
         }
@@ -142,6 +149,20 @@ public:
 
         cout << "Total Positives: " << positives << endl;
         cout << "Total Negatives: " << negatives << endl;
+
+        // Print all URLs that were found to be malicious
+        if (!maliciousUrls.empty())
+        {
+            cout << "\nMalicious URLs:\n";
+            for (const string &url : maliciousUrls)
+            {
+                cout << url << endl;
+            }
+        }
+        else
+        {
+            cout << "\nNo malicious URLs found.\n";
+        }
     }
 
     bitset<1000001> get_bits() { return bits; }
@@ -184,7 +205,7 @@ int main()
             cout << "Enter the website URL to test: ";
             cin >> website;
             bool result = bf.contains(website);
-            cout << "The website " << website << " is " << (result ? "possibly malicious." : "not malicious.");
+            cout << "The website " << website << " is " << (result ? "possibly malicious." : "not malicious.") << endl;
         }
         else if (choice == 3)
         {
